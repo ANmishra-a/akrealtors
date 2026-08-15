@@ -1,0 +1,90 @@
+---
+/**
+ * MahaRERA disclosure block: project + agent registration numbers and a
+ * QR code, required on every project and ad-landing page (noindex pages
+ * included — MahaRERA Order 46C/2025 applies regardless of indexing).
+ * The QR must be a live one before launch; ships as a data-slot until
+ * then so the layout is never silently wrong.
+ */
+import BlueprintFrame from "./BlueprintFrame.astro";
+import { SITE } from "@/lib/site";
+
+interface Props {
+  reraProjectNumber: string;
+  qrDataUrl?: string;
+  dark?: boolean;
+}
+const { reraProjectNumber, qrDataUrl, dark = false } = Astro.props;
+---
+
+<BlueprintFrame class={`compliance-block ${dark ? "surface-dark" : ""}`}>
+  <div class="compliance-row">
+    <div class="compliance-text">
+      <div class="kicker">MahaRERA disclosure — order 46C/2025</div>
+      <div class="compliance-heading">Project MahaRERA no.</div>
+      <div class="data-slot">{reraProjectNumber}</div>
+      <div class="compliance-heading">Agent no. {SITE.reraAgentNumber}</div>
+      <a href={SITE.reraUrl} class="compliance-heading">maharera.maharashtra.gov.in</a>
+    </div>
+    <div class="compliance-qr">
+      {
+        qrDataUrl ? (
+          <img src={qrDataUrl} alt="MahaRERA QR code" width="96" height="96" />
+        ) : (
+          <div class="qr-placeholder" aria-hidden="true" />
+        )
+      }
+      <span class="qr-label">QR pending</span>
+    </div>
+  </div>
+</BlueprintFrame>
+
+<style>
+  /* :global — this class is passed into <BlueprintFrame>, whose root
+     element is authored in that child component, not here, so Astro's
+     scoped-style attribute never lands on it. See
+     docs/decisions/0012-astro-scoped-styles-on-child-roots.md */
+  :global(.compliance-block) {
+    padding: 22px 22px 20px;
+    background: var(--color-surface);
+  }
+  .compliance-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+  }
+  .compliance-text {
+    flex: 1 1 auto;
+  }
+  .compliance-heading {
+    display: block;
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 1.2;
+    margin-bottom: 4px;
+  }
+  .compliance-text .data-slot {
+    margin-bottom: 14px;
+  }
+  .compliance-qr {
+    flex: 0 0 96px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .qr-placeholder {
+    width: 96px;
+    height: 96px;
+    background: repeating-conic-gradient(var(--color-ink) 0 25%, var(--color-surface) 0 50%) 0 0 / 12px 12px;
+    border: 1px solid var(--color-ink);
+  }
+  .qr-label {
+    font-family: var(--font-mono);
+    font-size: 8.5px;
+    letter-spacing: 0.06em;
+    color: var(--color-neutral-700);
+    text-align: center;
+  }
+</style>

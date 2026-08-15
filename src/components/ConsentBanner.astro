@@ -1,0 +1,71 @@
+---
+/**
+ * Plain-JS consent banner (no React island — two buttons don't need a
+ * framework, keeping the "ship near-zero JS" goal intact). Talks to the
+ * window.__akConsent object defined in Analytics.astro.
+ */
+---
+
+<div id="ak-consent-banner" class="consent-banner surface-dark" hidden>
+  <p>
+    We use cookies for analytics and ad measurement (GA4, Meta, Google Ads) so we know which listings and campaigns
+    actually produce leads. See our <a href="/privacy/">privacy &amp; DPDP notice</a>.
+  </p>
+  <div class="consent-actions">
+    <button type="button" class="btn" id="ak-consent-deny">Reject</button>
+    <button type="button" class="btn btn-gold" id="ak-consent-accept">Accept</button>
+  </div>
+</div>
+
+<style>
+  .consent-banner {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 80;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 24px;
+    border-top: 1px solid var(--color-divider);
+  }
+  .consent-banner p {
+    margin: 0;
+    font-size: 13px;
+    max-width: 640px;
+    color: var(--color-neutral-600);
+  }
+  .consent-banner a {
+    color: var(--color-accent);
+  }
+  .consent-actions {
+    display: flex;
+    gap: 10px;
+    flex: 0 0 auto;
+  }
+  .consent-actions .btn {
+    padding: 9px 16px;
+    font-size: 13px;
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    var banner = document.getElementById("ak-consent-banner");
+    if (!banner) return;
+    var status = localStorage.getItem("ak_consent_v1");
+    if (!status) banner.hidden = false;
+
+    document.getElementById("ak-consent-accept").addEventListener("click", function () {
+      window.__akConsent && window.__akConsent.grant();
+      banner.hidden = true;
+    });
+    document.getElementById("ak-consent-deny").addEventListener("click", function () {
+      window.__akConsent && window.__akConsent.deny();
+      banner.hidden = true;
+    });
+  })();
+</script>

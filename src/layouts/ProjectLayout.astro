@@ -1,0 +1,244 @@
+---
+/**
+ * Shared chrome for a project's four tabs (Overview/Price/Floor Plans/
+ * Updates). Each tab is its OWN prerendered URL — not a client-side
+ * tab-switcher — because each is its own search intent (design brief:
+ * "each tab is its own indexed URL, its own search intent").
+ */
+import BaseLayout from "./BaseLayout.astro";
+import BlueprintFrame from "@/components/BlueprintFrame.astro";
+import ComplianceBlock from "@/components/ComplianceBlock.astro";
+import LeadForm from "@/components/LeadForm.tsx";
+import { whatsappLink } from "@/lib/site";
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  project: CollectionEntry<"projects">["data"];
+  slug: string;
+  activeTab: "overview" | "price" | "floor-plans" | "updates";
+  title: string;
+  description: string;
+}
+const { project, slug, activeTab, title, description } = Astro.props;
+
+const tabs = [
+  { key: "overview", label: "Overview", href: `/projects/${slug}/` },
+  { key: "price", label: "Price", href: `/projects/${slug}/price/` },
+  { key: "floor-plans", label: "Floor plans", href: `/projects/${slug}/floor-plans/` },
+  { key: "updates", label: "Updates", href: `/projects/${slug}/updates/` },
+] as const;
+
+const waHref = whatsappLink(project.repPhone, `Hi, I'm interested in ${project.name}`);
+const callHref = `tel:+${project.repPhone}`;
+---
+
+<BaseLayout title={title} description={description}>
+  <main>
+    <div class="container breadcrumb">akarohanrealtors.com / {project.locality.toLowerCase().replace(/\s+/g, "-")} / {slug}</div>
+
+    <section class="container project-hero">
+      <div>
+        <div class="kicker">{project.developer.toUpperCase()} · {project.locality}, Pune</div>
+        <h1>{project.name}</h1>
+        <p class="hero-dek">
+          Our read after site visits: specification below is the developer's, verbatim. Everything under
+          <em>Our layer</em> is ours, dated, and yours to check.
+        </p>
+        <div class="hero-ctas">
+          <a href={waHref} class="btn btn-whatsapp">
+            <span class="dot"></span>WhatsApp about this project
+          </a>
+          <a href={callHref} class="btn">Call {project.repName.split(" ")[0]}</a>
+        </div>
+      </div>
+      <ComplianceBlock reraProjectNumber={project.reraProjectNumber} />
+    </section>
+
+    <section class="container hero-image-wrap">
+      <BlueprintFrame class="hero-image">
+        <span class="hero-image-label">Drop developer render — {project.name}, tower elevation</span>
+        <span class="hero-image-disclaimer">Artist's impression</span>
+      </BlueprintFrame>
+    </section>
+
+    <section class="container tabs-nav">
+      <nav aria-label="Project sections">
+        {
+          tabs.map((t) => (
+            <a href={t.href} class={t.key === activeTab ? "tab-active" : ""} aria-current={t.key === activeTab ? "page" : undefined}>
+              {t.label}
+            </a>
+          ))
+        }
+      </nav>
+    </section>
+
+    <section class="container project-body">
+      <div class="project-main">
+        <slot />
+      </div>
+      <aside class="project-aside">
+        <LeadForm client:visible theme="light" project={project.name} source={`organic-${slug}`} />
+        <BlueprintFrame class="author-card">
+          <div class="kicker">Written by</div>
+          <div class="author-row">
+            <div class="author-avatar" aria-hidden="true"></div>
+            <div>
+              <div class="author-name">{project.repName}</div>
+              <div class="author-office text-muted">AK Realtors Pvt. Ltd.</div>
+              <div class="author-rera">MahaRERA agent {project.reraAgentNumber}</div>
+            </div>
+          </div>
+        </BlueprintFrame>
+      </aside>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .breadcrumb {
+    padding-top: 24px;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    color: var(--color-neutral-600);
+  }
+  .project-hero {
+    padding: 32px 24px 0;
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 40px;
+    align-items: start;
+  }
+  .project-hero h1 {
+    font-size: 58px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin: 0 0 16px;
+  }
+  .hero-dek {
+    font-size: 18px;
+    line-height: 1.6;
+    color: var(--color-neutral-800);
+    max-width: 560px;
+    margin: 0 0 26px;
+  }
+  .hero-ctas {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .hero-image-wrap {
+    padding: 44px 24px 0;
+  }
+  /* :global — passed into <BlueprintFrame>; see
+     docs/decisions/0012-astro-scoped-styles-on-child-roots.md */
+  :global(.hero-image) {
+    position: relative;
+    aspect-ratio: 21/9;
+    background: repeating-linear-gradient(135deg, var(--color-neutral-300) 0 11px, var(--color-neutral-200) 11px 22px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hero-image-label {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    color: var(--color-neutral-600);
+    text-align: center;
+    padding: 0 24px;
+  }
+  .hero-image-disclaimer {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--color-neutral-700);
+    background: rgb(242 242 243 / 92%);
+    padding: 4px 8px;
+    border: 1px solid var(--color-divider);
+  }
+  .tabs-nav {
+    padding: 36px 24px 0;
+  }
+  .tabs-nav nav {
+    display: flex;
+    border-bottom: 1px solid var(--color-divider);
+  }
+  .tabs-nav a {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 16px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 14px 22px;
+    color: var(--color-neutral-700);
+    border-bottom: 2px solid transparent;
+  }
+  .tabs-nav a:hover {
+    text-decoration: none;
+    color: var(--color-ink);
+  }
+  .tab-active {
+    color: var(--color-ink) !important;
+    border-bottom-color: var(--color-accent) !important;
+  }
+  .project-body {
+    padding: 40px 24px 96px;
+    display: grid;
+    grid-template-columns: 1.5fr 0.85fr;
+    gap: 56px;
+    align-items: start;
+  }
+  .project-aside {
+    position: sticky;
+    top: 98px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  /* :global — passed into <BlueprintFrame>; see
+     docs/decisions/0012-astro-scoped-styles-on-child-roots.md */
+  :global(.author-card) {
+    padding: 18px;
+  }
+  .author-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  .author-avatar {
+    width: 52px;
+    height: 52px;
+    flex: 0 0 52px;
+    background: repeating-linear-gradient(135deg, var(--color-neutral-300) 0 7px, var(--color-neutral-200) 7px 14px);
+    border: 1px solid var(--color-divider);
+  }
+  .author-name {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 1.1;
+  }
+  .author-office {
+    font-size: 13px;
+  }
+  .author-rera {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--color-neutral-600);
+    margin-top: 3px;
+  }
+  @media (max-width: 960px) {
+    .project-hero,
+    .project-body {
+      grid-template-columns: 1fr;
+    }
+    .project-aside {
+      position: static;
+    }
+  }
+</style>

@@ -1,0 +1,125 @@
+---
+/**
+ * An image slot that shows a skeleton shimmer until the real photo loads,
+ * or a permanent "drop render" placeholder when no path is set yet — the
+ * same convention as the design mockup's dashed image slots. Keeps
+ * layout-shift at zero via aspect-ratio, which is part of why the design
+ * brief's "low loading time" goal is achievable without a JS library.
+ * See docs/decisions/0010-skeleton-loaders.md.
+ */
+import { imagekitUrl, imagekitSrcSet } from "@/lib/imagekit";
+
+interface Props {
+  path?: string;
+  alt: string;
+  ratio?: string;
+  widths?: number[];
+  sizes?: string;
+  placeholderLabel?: string;
+  disclaimer?: boolean;
+  class?: string;
+}
+
+const {
+  path,
+  alt,
+  ratio = "16/10",
+  widths = [400, 800, 1200],
+  sizes = "(max-width: 720px) 100vw, 33vw",
+  placeholderLabel,
+  disclaimer = true,
+  class: className = "",
+} = Astro.props;
+---
+
+{
+  path ? (
+    <div class={`img-slot ${className}`} style={`aspect-ratio:${ratio}`} data-imgslot>
+      <div class="skeleton skeleton-img" data-skeleton style={`aspect-ratio:${ratio}`} />
+      <img
+        src={imagekitUrl(path, { width: widths[widths.length - 1] })}
+        srcset={imagekitSrcSet(path, widths)}
+        sizes={sizes}
+        alt={alt}
+        loading="lazy"
+        decoding="async"
+        data-photo
+      />
+      {disclaimer && <span class="img-disclaimer">Artist's impression</span>}
+    </div>
+  ) : (
+    <div class={`img-slot img-slot-empty ${className}`} style={`aspect-ratio:${ratio}`}>
+      <span class="img-slot-label">{placeholderLabel ?? "Photo pending — added via the CMS"}</span>
+      {disclaimer && <span class="img-disclaimer">Artist's impression</span>}
+    </div>
+  )
+}
+
+<style>
+  .img-slot {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    border: 1px solid var(--color-divider);
+    background: var(--color-surface);
+  }
+  .img-slot[data-imgslot] .skeleton {
+    position: absolute;
+    inset: 0;
+  }
+  .img-slot img {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+  }
+  .img-slot-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: repeating-linear-gradient(
+      135deg,
+      var(--color-neutral-300) 0 9px,
+      var(--color-neutral-200) 9px 18px
+    );
+  }
+  .img-slot-label {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    color: var(--color-neutral-600);
+    text-align: center;
+    padding: 0 16px;
+  }
+  .img-disclaimer {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-neutral-700);
+    background: rgb(242 242 243 / 90%);
+    padding: 3px 6px;
+    border: 1px solid var(--color-divider);
+  }
+</style>
+
+<script>
+  // Fade the real photo in once decoded; drop the skeleton underneath.
+  // Runs once per page load — cheap enough not to need a framework.
+  for (const slot of document.querySelectorAll<HTMLElement>("[data-imgslot]")) {
+    const img = slot.querySelector<HTMLImageElement>("[data-photo]");
+    const skeleton = slot.querySelector<HTMLElement>("[data-skeleton]");
+    if (!img) continue;
+    const reveal = () => {
+      img.style.opacity = "1";
+      skeleton?.remove();
+    };
+    if (img.complete) reveal();
+    else img.addEventListener("load", reveal, { once: true });
+  }
+</script>

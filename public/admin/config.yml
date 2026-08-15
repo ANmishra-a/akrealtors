@@ -1,0 +1,152 @@
+# Decap CMS config — see docs/decisions/0005-cms-decap.md for why a
+# git-based CMS (vs. Sanity/Notion) was chosen, and cms-oauth/README.md
+# for how the GitHub login popup is wired up (Cloudflare Pages has no
+# built-in Git Gateway the way Netlify does, so a tiny OAuth worker
+# stands in for it).
+#
+# IMPORTANT: base_url below must point at the deployed cms-oauth worker.
+# Replace REPLACE_WITH_OAUTH_WORKER_URL once that worker is deployed
+# (see cms-oauth/README.md). branch must match whatever branch Cloudflare
+# Pages builds as production.
+
+backend:
+  name: github
+  repo: anmishra-a/akrealtors
+  branch: main
+  base_url: https://REPLACE_WITH_OAUTH_WORKER_URL
+  auth_endpoint: auth
+
+publish_mode: editorial_workflow
+media_folder: "public/uploads"
+public_folder: "/uploads"
+
+# No native ImageKit integration in Decap, so image fields are plain text
+# paths, not the built-in media picker — this keeps binary files off git
+# entirely (see docs/decisions/0009-media-hosting-imagekit-youtube.md).
+# The editor uploads the photo at imagekit.io/dashboard first (drag and
+# drop, works from a phone), then pastes the resulting path here.
+
+collections:
+  - name: "projects"
+    label: "Projects"
+    label_singular: "Project"
+    folder: "src/content/projects"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    format: "frontmatter"
+    identifier_field: "name"
+    summary: "{{name}} — {{locality}} — {{status}}"
+    fields:
+      - { label: "Project name", name: "name", widget: "string" }
+      - { label: "Developer", name: "developer", widget: "string" }
+      - { label: "Locality", name: "locality", widget: "string", hint: "Must match the MahaRERA-registered project address exactly." }
+      - { label: "Configuration", name: "config", widget: "string", hint: "e.g. 2 & 3 BHK" }
+      - { label: "Carpet area", name: "carpetArea", widget: "string", default: "DATA SLOT" }
+      - { label: "Possession", name: "possession", widget: "string", default: "DATA SLOT" }
+      - { label: "Price from", name: "priceFrom", widget: "string", default: "Price on request" }
+      - label: "Status"
+        name: "status"
+        widget: "select"
+        options: ["FLAGSHIP", "SELLING", "LIMITED", "MULTIPLE", "SOLD OUT"]
+        default: "SELLING"
+      - { label: "Flagship (features on the homepage)", name: "flagship", widget: "boolean", default: false }
+      - { label: "MahaRERA project number", name: "reraProjectNumber", widget: "string", default: "DATA SLOT", hint: "From the RERA-registered declaration. Never guess this." }
+      - { label: "MahaRERA agent number", name: "reraAgentNumber", widget: "string", default: "A041262504263" }
+      - { label: "Consultant phone (91XXXXXXXXXX)", name: "repPhone", widget: "string" }
+      - { label: "Consultant name", name: "repName", widget: "string" }
+      - { label: "Hero image — ImageKit path", name: "heroImage", widget: "string", required: false, hint: "e.g. projects/park-eden/hero.jpg — upload at imagekit.io/dashboard first." }
+      - { label: "Hero image alt text", name: "heroImageAlt", widget: "string", required: false }
+      - label: "Specification rows (developer-certified, verbatim)"
+        name: "specRows"
+        widget: "list"
+        required: false
+        fields:
+          - { label: "Field", name: "key", widget: "string" }
+          - { label: "Value", name: "value", widget: "string" }
+      - label: "Site-visit log"
+        name: "visitLog"
+        widget: "list"
+        required: false
+        hint: "Add one entry per monthly site visit."
+        fields:
+          - { label: "Photo — ImageKit path", name: "photo", widget: "string", required: false }
+          - { label: "Caption", name: "caption", widget: "string" }
+          - { label: "Date", name: "date", widget: "datetime" }
+      - label: "RERA QPR rows (promised vs actual possession)"
+        name: "qprRows"
+        widget: "list"
+        required: false
+        fields:
+          - { label: "Quarter", name: "quarter", widget: "string" }
+          - { label: "Declared completion", name: "declared", widget: "string" }
+          - { label: "Filed progress", name: "progress", widget: "string" }
+          - { label: "Our note", name: "note", widget: "string", required: false }
+      - label: "Benchmark rows (₹/carpet sq ft vs named neighbours)"
+        name: "benchRows"
+        widget: "list"
+        required: false
+        fields:
+          - { label: "Project name", name: "name", widget: "string" }
+          - { label: "Source", name: "source", widget: "string" }
+          - { label: "Rate", name: "rate", widget: "string" }
+          - { label: "Bar percent (0-100, relative)", name: "pct", widget: "number", value_type: "int", min: 0, max: 100, default: 50 }
+      - label: "Price rows"
+        name: "priceRows"
+        widget: "list"
+        required: false
+        fields:
+          - { label: "Configuration", name: "config", widget: "string" }
+          - { label: "Carpet", name: "carpet", widget: "string" }
+          - { label: "Price", name: "price", widget: "string" }
+          - { label: "Availability", name: "availability", widget: "string" }
+      - label: "Floor plan slots"
+        name: "planSlots"
+        widget: "list"
+        required: false
+        fields:
+          - { label: "Plan image — ImageKit path", name: "photo", widget: "string", required: false }
+          - { label: "Label", name: "label", widget: "string" }
+          - { label: "Our note", name: "note", widget: "string" }
+      - label: "Construction updates"
+        name: "updates"
+        widget: "list"
+        required: false
+        hint: "This is the monthly 'add an update' step — as easy as filling in one list item."
+        fields:
+          - { label: "Date", name: "date", widget: "datetime" }
+          - { label: "Title", name: "title", widget: "string" }
+          - { label: "Body", name: "body", widget: "text" }
+          - { label: "Photo — ImageKit path", name: "photo", widget: "string", required: false }
+      - { label: "Draft (hide from the live site)", name: "draft", widget: "boolean", default: true }
+      - { label: "Internal note (never shown publicly)", name: "internalNote", widget: "text", required: false }
+      - { label: "\"Our layer\" narrative (markdown body)", name: "body", widget: "markdown" }
+
+  - name: "articles"
+    label: "Insights (articles)"
+    label_singular: "Article"
+    folder: "src/content/articles"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    format: "frontmatter"
+    identifier_field: "title"
+    summary: "{{title}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Dek (one-line summary)", name: "dek", widget: "text" }
+      - { label: "Kicker (category label)", name: "kicker", widget: "string" }
+      - { label: "Author", name: "author", widget: "string" }
+      - { label: "Author's MahaRERA agent number", name: "authorRera", widget: "string", default: "A041262504263" }
+      - { label: "Publish date", name: "publishDate", widget: "datetime" }
+      - { label: "Chart/image caption", name: "heroChartCaption", widget: "string", required: false }
+      - label: "Related project"
+        name: "relatedProject"
+        widget: "relation"
+        required: false
+        collection: "projects"
+        search_fields: ["name"]
+        display_fields: ["name"]
+        value_field: "{{slug}}"
+      - { label: "Draft (hide from the live site)", name: "draft", widget: "boolean", default: true }
+      - { label: "Article body (markdown)", name: "body", widget: "markdown" }

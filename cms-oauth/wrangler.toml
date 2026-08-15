@@ -1,0 +1,7 @@
+name = "ak-realtors-cms-oauth"
+main = "worker.js"
+compatibility_date = "2026-08-01"
+
+# Secrets (never in this file — set with wrangler secret put):
+#   wrangler secret put GITHUB_OAUTH_CLIENT_ID
+#   wrangler secret put GITHUB_OAUTH_CLIENT_SECRET

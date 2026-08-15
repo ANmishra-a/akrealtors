@@ -1,0 +1,20 @@
+---
+/**
+ * Wraps any block in the design system's "blueprint" treatment: a
+ * hairline border plus four "+" registration marks at the corners.
+ * Used for cards, image slots, and the compliance block.
+ */
+interface Props {
+  as?: string;
+  class?: string;
+}
+const { as: Tag = "div", class: className = "" } = Astro.props;
+---
+
+<Tag class={`blueprint ${className}`}>
+  <i class="corner tl"></i>
+  <i class="corner tr"></i>
+  <i class="corner bl"></i>
+  <i class="corner br"></i>
+  <slot />
+</Tag>

@@ -1,0 +1,393 @@
+/*
+  AK Realtors — design tokens & component classes.
+
+  Ported from the approved design brief (Real_estate_website_strategy.zip):
+  the generic "Industry" blueprint system, recoloured to the brand's warm
+  gold accent + WhatsApp green, exactly as executed in the site mockup.
+  See docs/decisions/0003-design-system-tokens.md for why tokens (not
+  inline styles, not Tailwind) are the source of truth.
+*/
+@import url("https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Barlow+Condensed:wght@400;500;600;700&display=swap");
+
+:root {
+  /* ── Ground ───────────────────────────────────────────────────────── */
+  --color-bg: #f2f2f3;
+  --color-surface: #e9e9ea;
+  --color-ink: #1d1f20;
+  --color-ink-strong: #121314;
+
+  /* ── Neutral ramp ─────────────────────────────────────────────────── */
+  --color-neutral-100: #f5f5f8;
+  --color-neutral-200: #ececed;
+  --color-neutral-300: #e2e2e4;
+  --color-neutral-400: #b7b7ba;
+  --color-neutral-500: #98989b;
+  --color-neutral-600: #7a7a7d;
+  --color-neutral-700: #5d5d60;
+  --color-neutral-800: #424244;
+  --color-neutral-900: #2b2b2d;
+
+  /* ── Brand accent: warm gold ──────────────────────────────────────── */
+  --color-accent: #c39a4e;
+  --color-accent-deep: #7a5a1e; /* AA-safe on light ground: kickers, links */
+  --color-accent-border: #8f6d2f;
+
+  /* ── Functional: WhatsApp ─────────────────────────────────────────── */
+  --color-whatsapp: #25d366;
+  --color-whatsapp-ink: #0b2e18;
+  --color-whatsapp-border: #128c7e;
+
+  /* ── Dividers ─────────────────────────────────────────────────────── */
+  --color-divider: rgb(29 31 32 / 16%);
+  --color-divider-strong: rgb(29 31 32 / 40%);
+
+  /* ── Type ─────────────────────────────────────────────────────────── */
+  --font-heading: "Barlow Condensed", system-ui, sans-serif;
+  --font-heading-weight: 600;
+  --font-body: "Barlow", system-ui, sans-serif;
+  --font-mono: ui-monospace, Menlo, "SFMono-Regular", monospace;
+
+  /* ── Spacing / radius / shadow ────────────────────────────────────── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --radius-sm: 0; /* blueprint system: square corners everywhere */
+  --radius-md: 0;
+  --shadow-sm: 0 1px 2px rgb(43 43 45 / 14%);
+  --shadow-md: 0 3px 10px rgb(43 43 45 / 16%);
+  --shadow-lg: 0 12px 32px rgb(43 43 45 / 22%);
+
+  --content-max: 1180px;
+}
+
+/* ── Dark-surface sections (footer, enquire strip, ad landing pages) ──
+   Mirrors the Lead Form component's own light/dark token swap so any
+   section can flip by adding this class to a wrapper. */
+.surface-dark {
+  --color-bg: var(--color-ink-strong);
+  --color-surface: #1b1c1d;
+  --color-ink: #f2f2f3;
+  --color-neutral-700: #b7b7ba;
+  --color-neutral-600: #98989b;
+  --color-divider: rgb(242 242 243 / 16%);
+  --color-divider-strong: rgb(242 242 243 / 28%);
+  background: var(--color-bg);
+  color: var(--color-ink);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  font-weight: var(--font-heading-weight);
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  margin: 0 0 var(--space-2);
+}
+
+p {
+  margin: 0 0 var(--space-3);
+  text-wrap: pretty;
+}
+
+a {
+  color: var(--color-accent-deep);
+  text-decoration: none;
+  text-underline-offset: 3px;
+}
+a:hover {
+  color: var(--color-ink);
+  text-decoration: underline;
+}
+.surface-dark a {
+  color: var(--color-accent);
+}
+
+img,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+::selection {
+  background: rgb(195 154 78 / 30%);
+}
+:focus {
+  outline: none;
+}
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.container {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-accent-deep);
+}
+.surface-dark .kicker {
+  color: var(--color-accent);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   Blueprint frame — square, hairline-bordered, "+" registration marks
+   at each corner. Used on cards, figures, and compliance blocks.
+   ══════════════════════════════════════════════════════════════════ */
+.blueprint {
+  position: relative;
+  border: 1px solid var(--color-divider);
+}
+.blueprint > .corner {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  color: var(--color-divider-strong);
+  pointer-events: none;
+}
+.blueprint > .corner::before,
+.blueprint > .corner::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+}
+.blueprint > .corner::before {
+  left: 5px;
+  top: 0;
+  width: 1px;
+  height: 100%;
+}
+.blueprint > .corner::after {
+  top: 5px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+}
+.blueprint > .corner.tl {
+  top: -6px;
+  left: -6px;
+}
+.blueprint > .corner.tr {
+  top: -6px;
+  right: -6px;
+}
+.blueprint > .corner.bl {
+  bottom: -6px;
+  left: -6px;
+}
+.blueprint > .corner.br {
+  bottom: -6px;
+  right: -6px;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 14px 24px;
+  border: 1px solid var(--color-divider-strong);
+  color: var(--color-ink);
+  background: transparent;
+}
+.surface-dark .btn {
+  color: var(--color-ink);
+  border-color: var(--color-divider-strong);
+}
+.btn:hover {
+  text-decoration: none;
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-whatsapp {
+  background: var(--color-whatsapp);
+  color: var(--color-whatsapp-ink);
+  border-color: var(--color-whatsapp-border);
+}
+.btn-whatsapp:hover {
+  filter: brightness(0.96);
+}
+.btn-whatsapp .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-whatsapp-ink);
+}
+.btn-gold {
+  background: var(--color-accent);
+  color: var(--color-ink);
+  border-color: var(--color-accent-border);
+  font-weight: 700;
+}
+.btn-gold:hover {
+  filter: brightness(0.97);
+}
+.btn-block {
+  width: 100%;
+  justify-content: center;
+}
+
+/* ── Form fields ─────────────────────────────────────────────────── */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.field-label {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-neutral-700);
+}
+.input {
+  width: 100%;
+  font: inherit;
+  font-size: 14px;
+  padding: 11px 12px;
+  border: 1px solid var(--color-divider-strong);
+  border-radius: 0;
+  background: var(--color-bg);
+  color: var(--color-ink);
+}
+.input:hover {
+  border-color: var(--color-accent-deep);
+}
+.input:focus-visible {
+  border-color: var(--color-accent);
+  outline-offset: 0;
+}
+
+/* ── Tables ──────────────────────────────────────────────────────── */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.table th {
+  text-align: left;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-bg);
+  background: var(--color-ink);
+  padding: 10px 12px;
+}
+.table td {
+  border-bottom: 1px solid var(--color-divider);
+  padding: 12px;
+  font-size: 15px;
+  vertical-align: top;
+}
+
+/* ── Data slot (placeholder) marker ─────────────────────────────────
+   Every field seeded with placeholder data is wrapped in this so it is
+   visually obvious in the CMS/preview which numbers are still fake. */
+.data-slot {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  line-height: 1.6;
+  letter-spacing: 0.04em;
+  color: var(--color-neutral-700);
+  border: 1px dashed var(--color-neutral-400);
+  background: var(--color-surface);
+  padding: 8px 10px;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   Skeleton loaders — plain CSS shimmer, no JS/library. Used for image
+   slots and any content that streams in after first paint.
+   See docs/decisions/0010-skeleton-loaders.md
+   ══════════════════════════════════════════════════════════════════ */
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+.skeleton {
+  background: linear-gradient(
+    100deg,
+    var(--color-neutral-300) 30%,
+    var(--color-neutral-200) 45%,
+    var(--color-neutral-300) 60%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}
+.skeleton-img {
+  aspect-ratio: 16 / 10;
+  width: 100%;
+}
+
+.text-muted {
+  color: var(--color-neutral-700);
+}
+.surface-dark .text-muted {
+  color: var(--color-neutral-600);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

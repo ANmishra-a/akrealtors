@@ -1,0 +1,207 @@
+---
+import { SITE } from "@/lib/site";
+const year = new Date().getFullYear();
+
+const footerCols = [
+  {
+    title: "Projects",
+    links: [
+      { label: "VTP Never Before", href: "/projects/vtp-never-before/" },
+      { label: "VTP Altamira", href: "/projects/vtp-altamira/" },
+      { label: "VTP Flamante", href: "/projects/vtp-flamante/" },
+      { label: "Park Eden, Wagholi", href: "/projects/park-eden/" },
+      { label: "All projects", href: "/projects/" },
+    ],
+  },
+  {
+    title: "Micro-markets",
+    links: SITE.localities.map((l) => ({ label: l, href: `/projects/?locality=${encodeURIComponent(l)}` })),
+  },
+  {
+    title: "Company",
+    links: [
+      { label: "Insights", href: "/insights/" },
+      { label: "Contact", href: "/#enquire" },
+      { label: "Privacy & DPDP notice", href: "/privacy/" },
+      { label: "Grievance redressal", href: "/privacy/#grievance" },
+    ],
+  },
+];
+---
+
+<footer class="site-footer surface-dark">
+  <div class="container footer-grid">
+    <div>
+      <a href="/" class="footer-brand">
+        <img src="/brand/logo.jpg" alt={SITE.name} width="40" height="40" />
+        <span>{SITE.name}</span>
+      </a>
+      {
+        SITE.offices.map((office) => (
+          <>
+            <div class="office-label">{office.label}</div>
+            <p class="office-address">{office.address}</p>
+          </>
+        ))
+      }
+      <div class="nap-note">NAP must match the Google Business Profile character for character.</div>
+    </div>
+    {
+      footerCols.map((col) => (
+        <div>
+          <div class="col-title">{col.title}</div>
+          <div class="col-links">
+            {col.links.map((link) => (
+              <a href={link.href}>{link.label}</a>
+            ))}
+          </div>
+        </div>
+      ))
+    }
+  </div>
+
+  <div class="container statutory-wrap">
+    <div class="statutory-block">
+      <div>
+        <div class="statutory-kicker">Statutory</div>
+        <div class="statutory-heading">MahaRERA registered agent {SITE.reraAgentNumber}</div>
+        <a href={SITE.reraUrl} class="statutory-heading">maharera.maharashtra.gov.in</a>
+      </div>
+      <div>
+        <div class="statutory-kicker">Data queries &amp; grievances (DPDP)</div>
+        <p class="grievance-text">
+          {SITE.grievanceOfficer} · {SITE.grievanceEmail} · +91 {SITE.consultants[0].displayPhone}. We respond within
+          90 days. Enquiry details are shared with the developer of the project you enquire about.
+        </p>
+      </div>
+    </div>
+    <div class="legal-row">
+      <span>© {year} {SITE.name.toUpperCase()} · {SITE.domain.toUpperCase()}</span>
+      <span>All renders are artist's impressions · amenities as per RERA-registered declaration</span>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--color-divider);
+  }
+  .footer-grid {
+    padding: 64px 24px 28px;
+    display: grid;
+    grid-template-columns: 1.3fr 1fr 1fr 1fr;
+    gap: 40px;
+  }
+  .footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+    color: var(--color-ink);
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 18px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+  .footer-brand img {
+    border: 1px solid var(--color-divider);
+    object-fit: cover;
+    object-position: 50% 34%;
+  }
+  .footer-brand:hover {
+    text-decoration: none;
+  }
+  .office-label {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    margin-bottom: 6px;
+  }
+  .office-address {
+    margin: 0 0 14px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .nap-note {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    line-height: 1.7;
+    letter-spacing: 0.06em;
+    color: var(--color-neutral-600);
+  }
+  .col-title {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    margin-bottom: 16px;
+  }
+  .col-links {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .col-links a {
+    font-size: 14px;
+  }
+  .statutory-wrap {
+    padding: 0 24px 56px;
+  }
+  .statutory-block {
+    border: 1px solid var(--color-divider-strong);
+    padding: 20px 22px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+  }
+  .statutory-kicker {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.14em;
+    color: var(--color-neutral-600);
+    margin-bottom: 10px;
+  }
+  .statutory-heading {
+    display: block;
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 21px;
+    line-height: 1.3;
+  }
+  .grievance-text {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.65;
+  }
+  .legal-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--color-neutral-600);
+    padding-top: 22px;
+  }
+
+  @media (max-width: 900px) {
+    .footer-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .statutory-block {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 560px) {
+    .footer-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

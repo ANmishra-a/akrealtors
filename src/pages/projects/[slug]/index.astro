@@ -1,0 +1,205 @@
+---
+export const prerender = true;
+import { getCollection, render } from "astro:content";
+import ProjectLayout from "@/layouts/ProjectLayout.astro";
+import SkeletonImage from "@/components/SkeletonImage.astro";
+
+export async function getStaticPaths() {
+  const projects = await getCollection("projects", ({ data }) => !data.draft);
+  return projects.map((p) => ({ params: { slug: p.id }, props: { project: p } }));
+}
+
+const { project } = Astro.props;
+const { slug } = Astro.params;
+const { data } = project;
+const { Content } = await render(project);
+---
+
+<ProjectLayout
+  project={data}
+  slug={slug!}
+  activeTab="overview"
+  title={`${data.name} — ${data.locality}, Pune`}
+  description={`${data.name} by ${data.developer} in ${data.locality}. ${data.config}, carpet ${data.carpetArea}. Site-visit notes, RERA filings, and pricing from AK Realtors.`}
+>
+  <div class="kicker layer-kicker">40% — Specification layer · developer-certified, verbatim</div>
+  <table class="table spec-table">
+    <tbody>
+      {
+        data.specRows.map((row) => (
+          <tr>
+            <td class="spec-key">{row.key}</td>
+            <td>{row.value}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+
+  <div class="kicker layer-kicker layer-kicker-ours">60% — Our layer · this is what ranks</div>
+  <div class="prose">
+    <Content />
+  </div>
+
+  {
+    data.visitLog.length > 0 && (
+      <div class="visit-log-grid">
+        {data.visitLog.map((v) => (
+          <figure>
+            <SkeletonImage path={v.photo} alt={v.caption} ratio="4/3" placeholderLabel={`Site photo — ${v.caption}`} />
+            <figcaption>
+              {new Date(v.date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })} · {v.caption}
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+    )
+  }
+
+  {
+    data.qprRows.length > 0 && (
+      <>
+        <h3>Promised vs actual possession, from the RERA QPR filings</h3>
+        <p class="text-muted section-note">Public record, quarter by quarter. Nobody's brochure carries this table.</p>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Quarter</th>
+              <th>Declared completion</th>
+              <th>Filed progress</th>
+              <th>Our note</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.qprRows.map((q) => (
+              <tr>
+                <td class="mono-cell">{q.quarter}</td>
+                <td>{q.declared}</td>
+                <td>{q.progress}</td>
+                <td class="text-muted">{q.note}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </>
+    )
+  }
+
+  {
+    data.benchRows.length > 0 && (
+      <>
+        <h3>₹ per carpet sq ft against named neighbours</h3>
+        <p class="text-muted section-note">Claims about projects we don't represent are restricted to publicly filed RERA data.</p>
+        <div class="bench-rows">
+          {data.benchRows.map((b) => (
+            <div class="bench-row">
+              <div class="bench-row-main">
+                <div class="bench-row-label">
+                  <span>{b.name}</span>
+                  <span class="mono-cell text-muted">{b.source}</span>
+                </div>
+                <div class="bench-bar-track">
+                  <div class="bench-bar-fill" style={`width:${b.pct}%`} />
+                </div>
+              </div>
+              <div class="bench-rate">{b.rate}</div>
+            </div>
+          ))}
+        </div>
+        <div class="data-slot">DATA SLOT — replace rates with filed pricing + registered sale-deed values pulled monthly.</div>
+      </>
+    )
+  }
+</ProjectLayout>
+
+<style>
+  .layer-kicker {
+    margin-bottom: 16px;
+  }
+  .layer-kicker-ours {
+    margin-top: 12px;
+  }
+  .spec-table {
+    margin-bottom: 52px;
+  }
+  .spec-key {
+    color: var(--color-neutral-600);
+    width: 42%;
+  }
+  .prose :global(p) {
+    font-size: 16.5px;
+    line-height: 1.7;
+    color: var(--color-neutral-900);
+    margin: 0 0 18px;
+  }
+  .prose :global(h2) {
+    font-size: 36px;
+    margin: 0 0 14px;
+  }
+  .visit-log-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 8px 0 44px;
+  }
+  .visit-log-grid figcaption {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.06em;
+    color: var(--color-neutral-600);
+    margin-top: 7px;
+  }
+  h3 {
+    font-size: 28px;
+    margin: 0 0 6px;
+  }
+  .section-note {
+    font-size: 15px;
+    margin: 0 0 18px;
+  }
+  .mono-cell {
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+  table {
+    margin-bottom: 44px;
+  }
+  .bench-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .bench-row {
+    display: grid;
+    grid-template-columns: 1fr 88px;
+    gap: 14px;
+    align-items: center;
+  }
+  .bench-row-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+  .bench-bar-track {
+    height: 14px;
+    background: var(--color-neutral-300);
+    border: 1px solid var(--color-divider);
+  }
+  .bench-bar-fill {
+    height: 100%;
+    background: var(--color-accent);
+  }
+  .bench-rate {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 19px;
+    text-align: right;
+  }
+  @media (max-width: 720px) {
+    .visit-log-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>

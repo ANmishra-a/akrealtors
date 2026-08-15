@@ -1,0 +1,75 @@
+---
+export const prerender = true;
+import { getCollection } from "astro:content";
+import ProjectLayout from "@/layouts/ProjectLayout.astro";
+
+export async function getStaticPaths() {
+  const projects = await getCollection("projects", ({ data }) => !data.draft);
+  return projects.map((p) => ({ params: { slug: p.id }, props: { project: p } }));
+}
+
+const { project } = Astro.props;
+const { slug } = Astro.params;
+const { data } = project;
+const monthYear = new Date().toLocaleDateString("en-IN", { month: "long", year: "numeric" });
+---
+
+<ProjectLayout
+  project={data}
+  slug={slug!}
+  activeTab="price"
+  title={`${data.name} price list — ${monthYear}`}
+  description={`Price list for ${data.name}, ${data.locality}, Pune. All-inclusive, carpet-area based, dated.`}
+>
+  <h2>Price list — {monthYear}</h2>
+  <p class="section-note text-muted">
+    All-inclusive figures, carpet-area based, as filed. We publish the date because prices move and a stale price
+    list is worse than none.
+  </p>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Configuration</th>
+        <th>Carpet</th>
+        <th>Price</th>
+        <th>Availability</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        data.priceRows.map((r) => (
+          <tr>
+            <td>{r.config}</td>
+            <td>{r.carpet}</td>
+            <td class="mono-cell text-muted">{r.price}</td>
+            <td>{r.availability}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+  <div class="data-slot">
+    Karnataka circular note: no "subject to change" disclaimer is permitted there — keep this table dated and
+    current instead of hedged.
+  </div>
+</ProjectLayout>
+
+<style>
+  h2 {
+    font-size: 36px;
+    margin: 0 0 12px;
+  }
+  .section-note {
+    font-size: 16px;
+    line-height: 1.65;
+    max-width: 560px;
+    margin: 0 0 26px;
+  }
+  .mono-cell {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+  }
+  table {
+    margin-bottom: 26px;
+  }
+</style>

@@ -1,0 +1,471 @@
+---
+export const prerender = true;
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import BlueprintFrame from "@/components/BlueprintFrame.astro";
+import SkeletonImage from "@/components/SkeletonImage.astro";
+import LeadForm from "@/components/LeadForm.tsx";
+import { SITE, whatsappLink } from "@/lib/site";
+
+const projects = (await getCollection("projects", ({ data }) => !data.draft)).slice(0, 6);
+const articles = (await getCollection("articles", ({ data }) => !data.draft))
+  .sort((a, b) => b.data.publishDate.getTime() - a.data.publishDate.getTime())
+  .slice(0, 3);
+
+const waPrimary = whatsappLink(SITE.consultants[0].phone, "Hi, I'm interested in a project with AK Realtors");
+
+const differentiators = [
+  {
+    no: "01",
+    title: "One dated site visit per project, every month",
+    body: "Construction stage, the approach road, the sample flat, the road in monsoon. A portal with 125,000 pages cannot stand anywhere.",
+  },
+  {
+    no: "02",
+    title: "We read the RERA filings so you don't have to",
+    body: "Promised versus actual possession, quarter by quarter, from the public quarterly progress reports. Published as a table.",
+  },
+  {
+    no: "03",
+    title: "Price per carpet square foot, benchmarked",
+    body: "Against three named neighbouring projects, plus registered sale-deed values against advertised price.",
+  },
+  {
+    no: "04",
+    title: "We will name the project to skip",
+    body: "Portals will not — it costs them an advertiser. Claims about projects we don't represent stay inside publicly filed data.",
+  },
+];
+
+const credentials = [
+  {
+    value: "2",
+    label: "Staffed offices",
+    note: "Kharadi since 2018, Magarpatta added as we grew east. Real addresses you can walk into — no franchise layer, no virtual office.",
+  },
+  {
+    value: "A0412…",
+    label: "MahaRERA agent",
+    note: `${SITE.reraAgentNumber}. Certificate of Competency held by every person here who speaks to a buyer.`,
+  },
+];
+---
+
+<BaseLayout
+  title="AK Realtors — MahaRERA channel partner, East Pune"
+  description="We walk the sites we sell, every month, with dates on the photos. AK Realtors is a MahaRERA-registered channel partner working Kharadi, Wagholi, Koregaon Park and Magarpatta."
+>
+  <main>
+    <section class="hero">
+      <div class="container hero-inner">
+        <div class="hero-copy">
+          <div class="kicker">{SITE.localities.join(" · ").toUpperCase()}</div>
+          <h1>We walk the sites we sell.<br />Every month. With dates on the photos.</h1>
+          <p class="hero-dek">
+            AK Realtors Pvt. Ltd. is a MahaRERA-registered channel partner working East Pune only — Kharadi since
+            2018, now with a second office in Magarpatta. Two staffed addresses, both partners on the floor. We
+            visit every project we recommend, and we will tell you which one to skip.
+          </p>
+          <div class="hero-ctas">
+            <a href={waPrimary} class="btn btn-whatsapp"><span class="dot"></span>WhatsApp a consultant</a>
+            <a href="/projects/" class="btn">See the projects</a>
+          </div>
+        </div>
+
+        <div class="credentials-grid">
+          {
+            credentials.map((c) => (
+              <BlueprintFrame class="credential-card">
+                <div class="credential-value">{c.value}</div>
+                <div class="kicker credential-label">{c.label}</div>
+                <p class="text-muted">{c.note}</p>
+              </BlueprintFrame>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="locality-strip surface-dark">
+      <div class="container locality-strip-inner">
+        <span class="kicker">Micro-markets we actually cover</span>
+        {SITE.localities.map((l) => <span class="locality-pill">{l}</span>)}
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <div class="kicker">01 — Projects</div>
+            <h2>Projects we are selling right now</h2>
+          </div>
+          <a href="/projects/" class="section-link">All projects →</a>
+        </div>
+        <div class="project-grid">
+          {
+            projects.map((p) => (
+              <a href={`/projects/${p.id}/`} class="project-card">
+                <BlueprintFrame>
+                  <SkeletonImage
+                    path={p.data.heroImage}
+                    alt={p.data.heroImageAlt ?? p.data.name}
+                    ratio="16/10"
+                    placeholderLabel={`Drop render — ${p.data.name.toUpperCase()}`}
+                  />
+                  <div class="project-card-body">
+                    <div class="kicker">{p.data.developer}</div>
+                    <h3>{p.data.name}</h3>
+                    <div class="text-muted card-meta">
+                      {p.data.locality} · {p.data.config}
+                    </div>
+                    <div class="card-footer">
+                      <span class="card-price">{p.data.priceFrom}</span>
+                      <span class="card-status">{p.data.status}</span>
+                    </div>
+                  </div>
+                </BlueprintFrame>
+              </a>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-surface">
+      <div class="container">
+        <div class="differentiators-head">
+          <div class="kicker">02 — Why us, concretely</div>
+          <h2>Four things a portal will never do for you</h2>
+          <p class="text-muted">
+            99acres has 125,000 pages and nobody standing on the approach road in July. That is the whole
+            difference, and it is the only thing we sell on.
+          </p>
+        </div>
+        <div class="differentiators-grid">
+          {
+            differentiators.map((d) => (
+              <div class="differentiator">
+                <div class="kicker">{d.no}</div>
+                <h3>{d.title}</h3>
+                <p class="text-muted">{d.body}</p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <div class="kicker">03 — Insights</div>
+            <h2>Written from site visits, not from Google</h2>
+          </div>
+          <a href="/insights/" class="section-link">All articles →</a>
+        </div>
+        <div class="article-grid">
+          {
+            articles.map((a) => (
+              <a href={`/insights/${a.id}/`} class="article-card">
+                <div class="kicker">{a.data.kicker}</div>
+                <h3>{a.data.title}</h3>
+                <p class="text-muted">{a.data.dek}</p>
+                <div class="byline mono-cell">
+                  {a.data.author.toUpperCase()} ·{" "}
+                  {a.data.publishDate.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase()}
+                </div>
+              </a>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section id="enquire" class="section surface-dark enquire-section">
+      <div class="container enquire-inner">
+        <div>
+          <div class="kicker">04 — Talk to a human</div>
+          <h2>WhatsApp is faster.<br />The form works too.</h2>
+          <p class="enquire-dek">
+            One of us picks up — not a call centre. Tell us the configuration and your timeline and we will send the
+            price sheet and the last site photos before you commit a Saturday.
+          </p>
+          <div class="consultant-list">
+            {
+              SITE.consultants.map((c) => (
+                <a href={whatsappLink(c.phone, `Hi, I'm interested in a project with AK Realtors`)} class="consultant-row">
+                  <span class="consultant-name">{c.name}</span>
+                  <span class="consultant-phone">{c.displayPhone}</span>
+                </a>
+              ))
+            }
+          </div>
+        </div>
+        <LeadForm client:visible theme="dark" project="General enquiry" source="organic-home" />
+      </div>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .section {
+    padding: 88px 0;
+  }
+  .hero {
+    padding: 96px 0 72px;
+    border-bottom: 1px solid var(--color-divider);
+  }
+  .hero-copy {
+    text-align: center;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+  .hero-copy h1 {
+    font-size: 74px;
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    margin: 20px 0 22px;
+  }
+  .hero-dek {
+    font-size: 18px;
+    line-height: 1.6;
+    color: var(--color-neutral-800);
+    max-width: 640px;
+    margin: 0 auto 32px;
+  }
+  .hero-ctas {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .credentials-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-top: 76px;
+    max-width: 760px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  /* :global — passed into <BlueprintFrame>; see
+     docs/decisions/0012-astro-scoped-styles-on-child-roots.md */
+  :global(.credential-card) {
+    padding: 26px 22px 24px;
+  }
+  .credential-value {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 40px;
+    line-height: 1;
+    letter-spacing: -0.01em;
+  }
+  .credential-label {
+    margin: 10px 0 8px;
+    font-size: 14px;
+    letter-spacing: 0.12em;
+  }
+  .locality-strip-inner {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    flex-wrap: wrap;
+    padding: 22px 24px;
+  }
+  .locality-pill {
+    font-family: var(--font-heading);
+    font-weight: 500;
+    font-size: 17px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .section-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    border-bottom: 1px solid var(--color-divider);
+    padding-bottom: 18px;
+    margin-bottom: 36px;
+  }
+  .section-head h2 {
+    font-size: 40px;
+    line-height: 1.05;
+    margin: 0;
+  }
+  .section-link {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .project-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px 24px;
+  }
+  .project-card {
+    color: var(--color-ink);
+  }
+  .project-card:hover {
+    text-decoration: none;
+  }
+  .project-card-body {
+    padding: 20px 20px 22px;
+  }
+  .project-card h3 {
+    font-size: 26px;
+    line-height: 1.08;
+    margin: 0 0 6px;
+  }
+  .card-meta {
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid var(--color-divider);
+    padding-top: 12px;
+  }
+  .card-price {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 17px;
+  }
+  .card-status {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.08em;
+    border: 1px solid var(--color-divider-strong);
+    padding: 3px 7px;
+  }
+  .section-surface {
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-divider);
+    border-bottom: 1px solid var(--color-divider);
+  }
+  .differentiators-head {
+    max-width: 620px;
+    margin-bottom: 48px;
+  }
+  .differentiators-head h2 {
+    font-size: 40px;
+    line-height: 1.05;
+    margin: 0 0 14px;
+  }
+  .differentiators-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--color-divider);
+    border: 1px solid var(--color-divider);
+  }
+  .differentiator {
+    background: var(--color-surface);
+    padding: 32px 30px;
+  }
+  .differentiator h3 {
+    font-size: 25px;
+    line-height: 1.1;
+    margin: 14px 0 10px;
+  }
+  .article-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .article-card {
+    color: var(--color-ink);
+    border-top: 2px solid var(--color-ink);
+    padding-top: 18px;
+    display: block;
+  }
+  .article-card:hover {
+    text-decoration: none;
+  }
+  .article-card h3 {
+    font-size: 24px;
+    line-height: 1.12;
+    margin: 10px 0;
+  }
+  .byline {
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    color: var(--color-neutral-600);
+  }
+  .enquire-inner {
+    display: grid;
+    grid-template-columns: 1fr 1.05fr;
+    gap: 64px;
+  }
+  .enquire-section h2 {
+    font-size: 44px;
+    line-height: 1.04;
+    margin: 0 0 16px;
+  }
+  .enquire-dek {
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--color-neutral-600);
+    max-width: 420px;
+    margin: 0 0 28px;
+  }
+  .consultant-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 420px;
+  }
+  .consultant-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    border: 1px solid var(--color-divider-strong);
+    padding: 16px 18px;
+    color: var(--color-ink);
+  }
+  .consultant-row:hover {
+    text-decoration: none;
+    background: rgb(242 242 243 / 6%);
+  }
+  .consultant-name {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 20px;
+  }
+  .consultant-phone {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 19px;
+    color: var(--color-accent);
+  }
+
+  @media (max-width: 960px) {
+    .project-grid,
+    .differentiators-grid,
+    .article-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .enquire-inner {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 640px) {
+    .hero-copy h1 {
+      font-size: 46px;
+    }
+    .credentials-grid,
+    .project-grid,
+    .differentiators-grid,
+    .article-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

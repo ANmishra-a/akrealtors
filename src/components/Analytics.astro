@@ -1,0 +1,92 @@
+---
+/**
+ * GA4 + Google Ads conversion tag + Meta Pixel — gated behind consent.
+ * See docs/decisions/0011-analytics-consent.md.
+ *
+ * GA4/Ads use Google's Consent Mode v2: the tags load immediately (so
+ * Google gets anonymous "denied" pings it can model against) but start
+ * with ad_storage/analytics_storage denied; consent granted via the
+ * banner flips them live. Meta has no consent-mode equivalent, so its
+ * pixel script is only injected after explicit consent.
+ *
+ * IDs come from PUBLIC_* build-time env vars (see .env.example) and the
+ * whole block no-ops if they're unset, so the site works with zero
+ * tracking until you fill them in.
+ */
+const GA4_ID = import.meta.env.PUBLIC_GA4_ID;
+const META_PIXEL_ID = import.meta.env.PUBLIC_META_PIXEL_ID;
+const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID;
+const hasGoogle = Boolean(GA4_ID || GOOGLE_ADS_ID);
+---
+
+{
+  hasGoogle && (
+    <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${GA4_ID || GOOGLE_ADS_ID}`} />
+  )
+}
+
+<script define:vars={{ GA4_ID, META_PIXEL_ID, GOOGLE_ADS_ID }} is:inline>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  window.gtag = gtag;
+
+  gtag("consent", "default", {
+    ad_storage: "denied",
+    ad_user_data: "denied",
+    ad_personalization: "denied",
+    analytics_storage: "denied",
+  });
+
+  if (GA4_ID) gtag("config", GA4_ID);
+  if (GOOGLE_ADS_ID) gtag("config", GOOGLE_ADS_ID);
+
+  function loadMetaPixel() {
+    if (!META_PIXEL_ID || window.fbq) return;
+    /* eslint-disable */
+    !(function (f, b, e, v, n, t, s) {
+      if (f.fbq) return;
+      n = f.fbq = function () {
+        n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+      };
+      if (!f._fbq) f._fbq = n;
+      n.push = n;
+      n.loaded = true;
+      n.version = "2.0";
+      n.queue = [];
+      t = b.createElement(e);
+      t.async = true;
+      t.src = v;
+      s = b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t, s);
+    })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
+    /* eslint-enable */
+    window.fbq("init", META_PIXEL_ID);
+    window.fbq("track", "PageView");
+  }
+
+  window.__akConsent = {
+    KEY: "ak_consent_v1",
+    status: localStorage.getItem("ak_consent_v1"),
+    grant() {
+      localStorage.setItem(this.KEY, "granted");
+      this.status = "granted";
+      gtag("consent", "update", {
+        ad_storage: "granted",
+        ad_user_data: "granted",
+        ad_personalization: "granted",
+        analytics_storage: "granted",
+      });
+      loadMetaPixel();
+    },
+    deny() {
+      localStorage.setItem(this.KEY, "denied");
+      this.status = "denied";
+    },
+  };
+
+  if (window.__akConsent.status === "granted") {
+    window.__akConsent.grant();
+  }
+</script>

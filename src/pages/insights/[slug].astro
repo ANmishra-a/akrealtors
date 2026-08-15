@@ -1,0 +1,182 @@
+---
+export const prerender = true;
+import { getCollection, getEntry, render } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import LeadForm from "@/components/LeadForm.tsx";
+import { SITE } from "@/lib/site";
+
+export async function getStaticPaths() {
+  const articles = await getCollection("articles", ({ data }) => !data.draft);
+  return articles.map((a) => ({ params: { slug: a.id }, props: { article: a } }));
+}
+
+const { article } = Astro.props;
+const { slug } = Astro.params;
+const { data } = article;
+const { Content, headings } = await render(article);
+
+const relatedProject = data.relatedProject ? await getEntry("projects", data.relatedProject) : undefined;
+const shareUrl = `https://${SITE.domain}/insights/${slug}/`;
+const linkedInShare = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
+const formProject = relatedProject?.data.name ?? "an East Pune project";
+---
+
+<BaseLayout title={data.title} description={data.dek}>
+  <main class="container article-page">
+    <article>
+      <div class="mono-breadcrumb">akarohanrealtors.com / insights / {slug}</div>
+      <div class="kicker article-kicker">
+        {data.kicker.toUpperCase()} ·{" "}
+        {data.publishDate.toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" }).toUpperCase()}
+      </div>
+      <h1>{data.title}</h1>
+      <p class="dek">{data.dek}</p>
+      <div class="byline-row">
+        <div class="author-avatar" aria-hidden="true"></div>
+        <div class="byline-info">
+          <div class="author-name">{data.author}</div>
+          <div class="mono-cell text-muted">MahaRERA agent {data.authorRera} · {Math.max(3, Math.round(headings.length * 1.5))} min read</div>
+        </div>
+        <a href={linkedInShare} class="btn share-btn" target="_blank" rel="noopener">Share on LinkedIn</a>
+      </div>
+
+      <div class="prose">
+        <Content />
+      </div>
+
+      <div class="distribution-note">
+        <div class="kicker">Distribution checklist</div>
+        <p class="text-muted">
+          Every article ships with a LinkedIn carousel, an Instagram card set and a YouTube Short script derived
+          from this piece — the same data, three formats, each linking back here. That is how the links accumulate.
+        </p>
+      </div>
+    </article>
+    <aside class="article-aside">
+      {
+        headings.length > 0 && (
+          <div>
+            <div class="kicker">On this page</div>
+            <div class="toc">
+              {headings.map((h) => (
+                <a href={`#${h.slug}`}>{h.text}</a>
+              ))}
+            </div>
+          </div>
+        )
+      }
+      <LeadForm client:visible theme="light" project={formProject} source={`organic-insight-${slug}`} />
+    </aside>
+  </main>
+</BaseLayout>
+
+<style>
+  .article-page {
+    padding: 56px 24px 96px;
+    display: grid;
+    grid-template-columns: minmax(0, 700px) 1fr;
+    gap: 64px;
+  }
+  .mono-breadcrumb {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    color: var(--color-neutral-600);
+    margin-bottom: 26px;
+  }
+  .article-kicker {
+    margin-bottom: 16px;
+  }
+  article h1 {
+    font-size: 54px;
+    line-height: 1.03;
+    letter-spacing: -0.02em;
+    margin: 0 0 20px;
+  }
+  .dek {
+    font-size: 19px;
+    line-height: 1.62;
+    color: var(--color-neutral-800);
+    margin: 0 0 32px;
+  }
+  .byline-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-top: 1px solid var(--color-divider);
+    border-bottom: 1px solid var(--color-divider);
+    padding: 16px 0;
+    margin-bottom: 36px;
+  }
+  .author-avatar {
+    width: 44px;
+    height: 44px;
+    background: repeating-linear-gradient(135deg, var(--color-neutral-300) 0 7px, var(--color-neutral-200) 7px 14px);
+    border: 1px solid var(--color-divider);
+  }
+  .byline-info {
+    flex: 1 1 auto;
+  }
+  .author-name {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 1.1;
+  }
+  .share-btn {
+    padding: 9px 14px;
+    font-size: 14px;
+  }
+  .prose :global(p) {
+    font-size: 17px;
+    line-height: 1.75;
+    margin: 0 0 20px;
+  }
+  .prose :global(blockquote) {
+    border-left: 3px solid var(--color-accent);
+    padding: 4px 0 4px 20px;
+    margin: 0 0 30px;
+    font-family: var(--font-heading);
+    font-weight: 500;
+    font-size: 19px;
+    line-height: 1.6;
+  }
+  .prose :global(h2) {
+    font-size: 30px;
+    margin: 40px 0 12px;
+  }
+  .distribution-note {
+    border: 1px solid var(--color-divider);
+    padding: 24px;
+    background: var(--color-surface);
+    margin-top: 20px;
+  }
+  .article-aside {
+    position: sticky;
+    top: 98px;
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .toc {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .toc a {
+    font-size: 14.5px;
+    line-height: 1.4;
+    color: var(--color-neutral-800);
+    border-left: 1px solid var(--color-divider-strong);
+    padding-left: 12px;
+  }
+  @media (max-width: 900px) {
+    .article-page {
+      grid-template-columns: 1fr;
+    }
+    .article-aside {
+      position: static;
+    }
+  }
+</style>

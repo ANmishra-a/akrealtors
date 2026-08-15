@@ -1,0 +1,193 @@
+---
+export const prerender = true;
+/**
+ * Ad landing page template — duplicate this file per campaign (see
+ * README "Adding a new ad landing page"). Always: noindex, no site
+ * chrome, own `source` tag on the Lead Form so spend can be attributed.
+ */
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import BlueprintFrame from "@/components/BlueprintFrame.astro";
+import ComplianceBlock from "@/components/ComplianceBlock.astro";
+import LeadForm from "@/components/LeadForm.tsx";
+import { SITE, whatsappLink } from "@/lib/site";
+
+const waHref = whatsappLink(SITE.consultants[0].phone, "Hi, I'm interested in a 2 or 3 BHK in Kharadi Annexe");
+const project = "a 2 or 3 BHK in Kharadi Annexe";
+---
+
+<BaseLayout
+  title="2 & 3 BHK in Kharadi Annexe — site visits this weekend"
+  description="One WhatsApp message gets you the price sheet, floor plans and a site-visit slot for Kharadi Annexe. No call centre."
+  noindex={true}
+  bare={true}
+>
+  <div class="container lp-topbar">
+    <a href="/" class="lp-brand">
+      <img src="/brand/logo.jpg" alt="AK Realtors" width="40" height="40" class="lp-logo" />
+      <span>AK Realtors Pvt. Ltd.</span>
+    </a>
+    <div class="lp-topbar-right">
+      <span class="data-slot lp-noindex-flag">meta-robots: noindex, nofollow</span>
+      <a href="/" class="btn lp-back-btn">Back to site</a>
+    </div>
+  </div>
+
+  <div class="container lp-body">
+    <div class="lp-hero">
+      <div class="kicker">Kharadi Annexe · site visits this weekend</div>
+      <h1>2 &amp; 3 BHK in Kharadi Annexe. See it Saturday.</h1>
+      <p class="lp-dek">One WhatsApp message gets you the price sheet, the floor plans and a slot. No call centre, no thirty missed calls.</p>
+      <div class="lp-ctas">
+        <a href={waHref} class="btn btn-whatsapp lp-btn-lg"><span class="dot"></span>WhatsApp now</a>
+        <a href="tel:+919870886895" class="btn lp-btn-lg">Call 98708 86895</a>
+      </div>
+      <BlueprintFrame class="lp-media">
+        <span class="lp-media-label">Drop render or 15s vertical cut from the Meta / YouTube creative</span>
+        <span class="lp-media-disclaimer">Artist's impression</span>
+      </BlueprintFrame>
+      <ComplianceBlock reraProjectNumber="DATA SLOT" dark={true} />
+    </div>
+
+    <div class="lp-form-row">
+      <div>
+        <div class="kicker">Still deciding?</div>
+        <h2>Leave a number.<br />We'll send the price sheet.</h2>
+        <p class="lp-form-note">No obligation to visit. If the numbers don't work for you we will say so on the call.</p>
+      </div>
+      <LeadForm client:load theme="dark" project={project} source="meta-kharadi-annexe-01" />
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .lp-topbar {
+    padding: 20px 24px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .lp-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--color-ink);
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 18px;
+    letter-spacing: 0.04em;
+  }
+  .lp-brand:hover {
+    text-decoration: none;
+  }
+  .lp-logo {
+    filter: invert(1) hue-rotate(180deg);
+    border: 1px solid var(--color-divider);
+    object-fit: cover;
+    object-position: 50% 34%;
+  }
+  .lp-topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .lp-noindex-flag {
+    white-space: nowrap;
+    font-size: 9.5px;
+  }
+  .lp-back-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+    color: var(--color-neutral-600);
+  }
+  .lp-body {
+    padding: 44px 24px 80px;
+  }
+  .lp-hero {
+    max-width: 760px;
+  }
+  .lp-hero h1 {
+    font-size: 64px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin: 0 0 18px;
+  }
+  .lp-dek {
+    font-size: 18px;
+    line-height: 1.6;
+    color: var(--color-neutral-600);
+    max-width: 480px;
+    margin: 0 0 30px;
+  }
+  .lp-ctas {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 34px;
+  }
+  .lp-btn-lg {
+    font-size: 20px;
+    font-weight: 700;
+    padding: 18px 32px;
+  }
+  /* :global — passed into <BlueprintFrame>; see
+     docs/decisions/0012-astro-scoped-styles-on-child-roots.md */
+  :global(.lp-media) {
+    position: relative;
+    aspect-ratio: 16/9;
+    background: repeating-linear-gradient(135deg, #1b1c1d 0 11px, #232425 11px 22px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 28px;
+  }
+  .lp-media-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--color-neutral-600);
+    text-align: center;
+    padding: 0 24px;
+  }
+  .lp-media-disclaimer {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.08em;
+    color: var(--color-neutral-600);
+    background: rgb(18 19 20 / 90%);
+    padding: 4px 8px;
+    border: 1px solid var(--color-divider);
+  }
+  .lp-form-row {
+    border-top: 1px solid var(--color-divider);
+    margin-top: 64px;
+    padding-top: 56px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 56px;
+    align-items: start;
+  }
+  .lp-form-row h2 {
+    font-size: 42px;
+    line-height: 1.04;
+    margin: 0 0 14px;
+  }
+  .lp-form-note {
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--color-neutral-600);
+    max-width: 400px;
+    margin: 0;
+  }
+  @media (max-width: 860px) {
+    .lp-hero h1 {
+      font-size: 42px;
+    }
+    .lp-form-row {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

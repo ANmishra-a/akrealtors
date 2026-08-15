@@ -1,0 +1,98 @@
+---
+export const prerender = true;
+import { getCollection } from "astro:content";
+import ProjectLayout from "@/layouts/ProjectLayout.astro";
+import SkeletonImage from "@/components/SkeletonImage.astro";
+
+export async function getStaticPaths() {
+  const projects = await getCollection("projects", ({ data }) => !data.draft);
+  return projects.map((p) => ({ params: { slug: p.id }, props: { project: p } }));
+}
+
+const { project } = Astro.props;
+const { slug } = Astro.params;
+const { data } = project;
+const updates = [...data.updates].sort((a, b) => b.date.getTime() - a.date.getTime());
+---
+
+<ProjectLayout
+  project={data}
+  slug={slug!}
+  activeTab="updates"
+  title={`${data.name} construction updates`}
+  description={`Dated, photographed construction log for ${data.name}, ${data.locality}, Pune. Updated monthly.`}
+>
+  <h2>Construction log</h2>
+  <p class="section-note text-muted">
+    One visit a month, photographed and dated. This is four hours of work and it is the entire moat — freshness is
+    the whole ranking signal on <span class="mono-inline">&lt;project&gt; construction status &lt;month year&gt;</span>.
+  </p>
+  {
+    updates.length > 0 ? (
+      <div class="update-list">
+        {updates.map((u) => (
+          <div class="update-row">
+            <div class="update-date mono-cell">
+              {u.date.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase()}
+            </div>
+            <div>
+              <h3>{u.title}</h3>
+              <p class="text-muted">{u.body}</p>
+              <SkeletonImage path={u.photo} alt={u.title} ratio="3/1" placeholderLabel={`Site photo — ${u.title}`} />
+            </div>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div class="data-slot">DATA SLOT — no construction updates logged yet. Add the first monthly visit via the CMS.</div>
+    )
+  }
+</ProjectLayout>
+
+<style>
+  h2 {
+    font-size: 36px;
+    margin: 0 0 12px;
+  }
+  .section-note {
+    font-size: 16px;
+    line-height: 1.65;
+    max-width: 560px;
+    margin: 0 0 30px;
+  }
+  .mono-inline {
+    font-family: var(--font-mono);
+    font-size: 14px;
+  }
+  .update-list {
+    display: flex;
+    flex-direction: column;
+  }
+  .update-row {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 24px;
+    border-top: 1px solid var(--color-divider);
+    padding: 22px 0;
+  }
+  .update-date {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--color-accent-deep);
+  }
+  .update-row h3 {
+    font-size: 23px;
+    margin: 0 0 8px;
+  }
+  .update-row p {
+    font-size: 15px;
+    line-height: 1.6;
+    margin: 0 0 12px;
+  }
+  @media (max-width: 560px) {
+    .update-row {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+  }
+</style>

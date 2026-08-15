@@ -1,0 +1,73 @@
+---
+export const prerender = true;
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { SITE } from "@/lib/site";
+---
+
+<BaseLayout
+  title="Privacy & DPDP notice"
+  description="How AK Realtors collects, uses, and shares enquiry data, and how to reach our grievance officer under the Digital Personal Data Protection Act."
+>
+  <main class="container privacy-page">
+    <h1>Privacy &amp; DPDP notice</h1>
+    <p class="text-muted">Last updated: DATA SLOT — set this to the date this notice is actually published.</p>
+
+    <h2>What we collect</h2>
+    <p>
+      When you submit an enquiry (site visit form, WhatsApp, or phone call) we collect your name, phone number, the
+      project and configuration you asked about, and your preferred site-visit timing. Analytics tools (see below)
+      also collect anonymous browsing data once you consent to cookies.
+    </p>
+
+    <h2>How we use it</h2>
+    <p>
+      Your enquiry is used to contact you about the project you asked about, and — only if you separately opt in —
+      to send you other AK Realtors project updates. Your name and number are shared with the developer of the
+      project you enquire about, so they can also assist with your enquiry.
+    </p>
+
+    <h2>Cookies &amp; analytics</h2>
+    <p>
+      We use Google Analytics (GA4), Google Ads conversion tracking, and the Meta Pixel to understand which pages
+      and campaigns lead to genuine enquiries. These only run after you accept the cookie banner; you can change
+      your choice at any time by clearing your browser's local storage for this site.
+    </p>
+
+    <h2 id="grievance">Grievance redressal</h2>
+    <p>
+      Under the Digital Personal Data Protection Act, 2023, you may contact our Grievance Officer with any question
+      or complaint about how your data is handled:
+    </p>
+    <p>
+      {SITE.grievanceOfficer}<br />
+      {SITE.grievanceEmail}<br />
+      +91 {SITE.consultants[0].displayPhone}<br />
+      We respond within 90 days.
+    </p>
+
+    <h2>MahaRERA</h2>
+    <p>
+      AK Realtors Pvt. Ltd. is a MahaRERA-registered channel partner, agent number {SITE.reraAgentNumber}. Verify our
+      registration and every project's RERA number at <a href={SITE.reraUrl}>maharera.maharashtra.gov.in</a>.
+    </p>
+  </main>
+</BaseLayout>
+
+<style>
+  .privacy-page {
+    padding: 56px 24px 96px;
+    max-width: 760px;
+  }
+  h1 {
+    font-size: 48px;
+    margin: 0 0 8px;
+  }
+  h2 {
+    font-size: 26px;
+    margin: 40px 0 10px;
+  }
+  p {
+    font-size: 16px;
+    line-height: 1.7;
+  }
+</style>

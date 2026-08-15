@@ -1,0 +1,117 @@
+---
+import { NAV_ITEMS, SITE, whatsappLink } from "@/lib/site";
+
+const path = Astro.url.pathname;
+const isActive = (href: string) => (href === "/" ? path === "/" : path.startsWith(href));
+const waHref = whatsappLink(SITE.consultants[0].phone, "Hi, I'm interested in a project with AK Realtors");
+---
+
+<header class="site-header">
+  <div class="container header-row">
+    <a href="/" class="brand">
+      <img src="/brand/logo.jpg" alt={SITE.name} width="44" height="44" class="brand-logo" />
+      <span class="brand-text">
+        <span class="brand-name">AK Realtors</span>
+        <span class="brand-tag">{SITE.tagline}</span>
+      </span>
+    </a>
+    <nav class="main-nav" aria-label="Primary">
+      {
+        NAV_ITEMS.map((item) => (
+          <a href={item.href} aria-current={isActive(item.href) ? "page" : undefined}>
+            {item.label}
+          </a>
+        ))
+      }
+      <a href={waHref} class="btn btn-whatsapp btn-sm" data-analytics="nav_whatsapp">
+        <span class="dot"></span>WhatsApp us
+      </a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: rgb(242 242 243 / 94%);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--color-divider);
+  }
+  .header-row {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    height: 74px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 0 0 auto;
+    color: var(--color-ink);
+  }
+  .brand:hover {
+    text-decoration: none;
+  }
+  .brand-logo {
+    width: 44px;
+    height: 44px;
+    object-fit: cover;
+    object-position: 50% 34%;
+    border: 1px solid var(--color-divider);
+    background: var(--color-bg);
+  }
+  .brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.05;
+  }
+  .brand-name {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 19px;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+  }
+  .brand-tag {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-neutral-600);
+    white-space: nowrap;
+  }
+  .main-nav {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 12px 18px;
+    margin-left: auto;
+  }
+  .main-nav a:not(.btn) {
+    font-family: var(--font-heading);
+    font-weight: 500;
+    font-size: 15px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 4px 0;
+    border-bottom: 1px solid transparent;
+    white-space: nowrap;
+    color: var(--color-neutral-700);
+  }
+  .main-nav a:not(.btn):hover {
+    color: var(--color-ink);
+    text-decoration: none;
+  }
+  .main-nav a[aria-current="page"] {
+    color: var(--color-ink);
+    border-bottom-color: var(--color-accent);
+  }
+  .btn-sm {
+    padding: 11px 18px;
+    font-size: 15px;
+  }
+</style>

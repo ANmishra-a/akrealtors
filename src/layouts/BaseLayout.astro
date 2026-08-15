@@ -1,0 +1,53 @@
+---
+import "@/styles/global.css";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import SeoMeta from "@/components/SeoMeta.astro";
+import Analytics from "@/components/Analytics.astro";
+import ConsentBanner from "@/components/ConsentBanner.astro";
+import { SITE } from "@/lib/site";
+
+interface Props {
+  title: string;
+  description: string;
+  noindex?: boolean;
+  ogImage?: string;
+  /** Ad-landing pages render without header/footer chrome and default surface-dark. */
+  bare?: boolean;
+}
+const { title, description, noindex = false, ogImage, bare = false } = Astro.props;
+
+const orgJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "RealEstateAgent",
+  name: SITE.name,
+  url: `https://${SITE.domain}`,
+  image: `https://${SITE.domain}/brand/logo.jpg`,
+  telephone: "+919870886895",
+  address: SITE.offices.map((o) => ({
+    "@type": "PostalAddress",
+    streetAddress: o.address,
+  })),
+  areaServed: SITE.localities,
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/jpeg" href="/brand/logo.jpg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <SeoMeta title={title} description={description} noindex={noindex} ogImage={ogImage} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(orgJsonLd)} />
+    <Analytics />
+  </head>
+  <body class={bare ? "surface-dark" : undefined}>
+    {!bare && <Header />}
+    <slot />
+    {!bare && <Footer />}
+    <ConsentBanner />
+  </body>
+</html>

@@ -1,0 +1,71 @@
+---
+export const prerender = true;
+import { getCollection } from "astro:content";
+import ProjectLayout from "@/layouts/ProjectLayout.astro";
+import SkeletonImage from "@/components/SkeletonImage.astro";
+
+export async function getStaticPaths() {
+  const projects = await getCollection("projects", ({ data }) => !data.draft);
+  return projects.map((p) => ({ params: { slug: p.id }, props: { project: p } }));
+}
+
+const { project } = Astro.props;
+const { slug } = Astro.params;
+const { data } = project;
+---
+
+<ProjectLayout
+  project={data}
+  slug={slug!}
+  activeTab="floor-plans"
+  title={`${data.name} floor plans`}
+  description={`Floor plans for ${data.name}, ${data.locality}, Pune, with AK Realtors' notes on layout efficiency.`}
+>
+  <h2>Floor plans, and our read on efficiency</h2>
+  <p class="section-note text-muted">
+    The answer to this query is an image, which is why it survives AI Overviews. Give it a page of its own and
+    annotate every plan.
+  </p>
+  {
+    data.planSlots.length > 0 ? (
+      <div class="plan-grid">
+        {data.planSlots.map((pl) => (
+          <figure>
+            <SkeletonImage path={pl.photo} alt={pl.label} ratio="1/1" placeholderLabel={`Drop plan — ${pl.label}`} disclaimer={false} />
+            <figcaption>{pl.note}</figcaption>
+          </figure>
+        ))}
+      </div>
+    ) : (
+      <div class="data-slot">DATA SLOT — floor plans not uploaded yet. Add them via the CMS.</div>
+    )
+  }
+</ProjectLayout>
+
+<style>
+  h2 {
+    font-size: 36px;
+    margin: 0 0 12px;
+  }
+  .section-note {
+    font-size: 16px;
+    line-height: 1.65;
+    max-width: 560px;
+    margin: 0 0 26px;
+  }
+  .plan-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  .plan-grid figcaption {
+    font-size: 14px;
+    color: var(--color-neutral-700);
+    margin-top: 9px;
+  }
+  @media (max-width: 560px) {
+    .plan-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

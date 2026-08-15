@@ -1,0 +1,207 @@
+---
+export const prerender = true;
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import BlueprintFrame from "@/components/BlueprintFrame.astro";
+import SkeletonImage from "@/components/SkeletonImage.astro";
+import { SITE } from "@/lib/site";
+
+const allProjects = (await getCollection("projects", ({ data }) => !data.draft)).sort((a, b) =>
+  a.data.name.localeCompare(b.data.name)
+);
+const filters = ["All", ...SITE.localities];
+---
+
+<BaseLayout
+  title="Projects in East Pune"
+  description="Every project AK Realtors is showing buyers in Kharadi, Upper Kharadi, Wagholi, Koregaon Park and Magarpatta — with MahaRERA numbers and dated site-visit notes."
+>
+  <main class="container projects-index">
+    <div class="mono-breadcrumb">akarohanrealtors.com / projects</div>
+    <h1>Projects in East Pune</h1>
+    <p class="lede">
+      The projects we are showing buyers across five micro-markets. Every card carries the project's MahaRERA number
+      and our agent registration — if a project's RERA record lapses, the page comes down.
+    </p>
+
+    <div class="filter-row" data-filter-row>
+      {
+        filters.map((f, i) => (
+          <button type="button" class="filter-btn" data-filter={f} aria-pressed={i === 0 ? "true" : "false"}>
+            {f}
+          </button>
+        ))
+      }
+    </div>
+
+    <div class="project-grid" data-project-grid>
+      {
+        allProjects.map((p) => (
+          <a href={`/projects/${p.id}/`} class="project-card" data-locality={p.data.locality}>
+            <BlueprintFrame>
+              <SkeletonImage
+                path={p.data.heroImage}
+                alt={p.data.heroImageAlt ?? p.data.name}
+                ratio="4/3"
+                placeholderLabel={`Drop render — ${p.data.name.toUpperCase()}`}
+              />
+              <div class="project-card-body">
+                <div class="kicker">{p.data.developer}</div>
+                <h3>{p.data.name}</h3>
+                <div class="text-muted card-meta">
+                  {p.data.locality} · {p.data.config}
+                </div>
+                <div class="card-facts">
+                  <div>
+                    <span class="text-muted">Carpet area</span>
+                    <span>{p.data.carpetArea}</span>
+                  </div>
+                  <div>
+                    <span class="text-muted">Possession</span>
+                    <span>{p.data.possession}</span>
+                  </div>
+                  <div>
+                    <span class="text-muted">From</span>
+                    <span>{p.data.priceFrom}</span>
+                  </div>
+                </div>
+                <div class="data-slot rera-slot">
+                  MahaRERA (project): {p.data.reraProjectNumber}
+                  <br />
+                  Agent: {p.data.reraAgentNumber} · maharera.maharashtra.gov.in
+                </div>
+              </div>
+            </BlueprintFrame>
+          </a>
+        ))
+      }
+    </div>
+  </main>
+</BaseLayout>
+
+<script>
+  const row = document.querySelector<HTMLElement>("[data-filter-row]");
+  const grid = document.querySelector<HTMLElement>("[data-project-grid]");
+  if (row && grid) {
+    const params = new URLSearchParams(location.search);
+    const initial = params.get("locality") || "All";
+    applyFilter(initial);
+
+    row.addEventListener("click", (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>("[data-filter]");
+      if (!btn) return;
+      applyFilter(btn.dataset.filter!);
+    });
+
+    function applyFilter(filter: string) {
+      for (const btn of row!.querySelectorAll<HTMLButtonElement>("[data-filter]")) {
+        btn.setAttribute("aria-pressed", String(btn.dataset.filter === filter));
+      }
+      for (const card of grid!.querySelectorAll<HTMLElement>("[data-locality]")) {
+        const show = filter === "All" || card.dataset.locality!.indexOf(filter) !== -1;
+        card.style.display = show ? "" : "none";
+      }
+    }
+  }
+</script>
+
+<style>
+  .projects-index {
+    padding: 56px 24px 96px;
+  }
+  .mono-breadcrumb {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    color: var(--color-neutral-600);
+    margin-bottom: 26px;
+  }
+  h1 {
+    font-size: 58px;
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    margin: 0 0 14px;
+  }
+  .lede {
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--color-neutral-800);
+    max-width: 620px;
+    margin: 0 0 34px;
+  }
+  .filter-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    border-top: 1px solid var(--color-divider);
+    border-bottom: 1px solid var(--color-divider);
+    padding: 16px 0;
+    margin-bottom: 40px;
+  }
+  .filter-btn {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 8px 14px;
+    border: 1px solid var(--color-divider-strong);
+    cursor: pointer;
+    background: transparent;
+    color: var(--color-ink);
+  }
+  .filter-btn[aria-pressed="true"] {
+    background: var(--color-ink);
+    color: var(--color-bg);
+  }
+  .project-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px 24px;
+  }
+  .project-card {
+    color: var(--color-ink);
+  }
+  .project-card:hover {
+    text-decoration: none;
+  }
+  .project-card-body {
+    padding: 20px;
+  }
+  .project-card h3 {
+    font-size: 27px;
+    line-height: 1.06;
+    margin: 8px 0 6px;
+  }
+  .card-meta {
+    font-size: 14px;
+    margin-bottom: 14px;
+  }
+  .card-facts {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border-top: 1px solid var(--color-divider);
+    padding-top: 12px;
+    margin-bottom: 12px;
+  }
+  .card-facts div {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13.5px;
+  }
+  .rera-slot {
+    line-height: 1.5;
+  }
+  @media (max-width: 960px) {
+    .project-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 620px) {
+    .project-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,29 @@
+name = "ak-realtors-site"
+compatibility_date = "2026-08-01"
+compatibility_flags = ["nodejs_compat"]
+
+# `main` and `[assets]` are intentionally omitted here: @astrojs/cloudflare
+# generates its own dist/server/wrangler.json with the correct paths after
+# `astro build` runs (see package.json's `deploy` script, which points
+# `wrangler deploy` at that generated config). This root file exists only
+# to declare the custom bindings below, which the adapter merges in.
+
+# Two KV namespaces: one for stored leads (a durable, exportable backup of
+# every submission alongside the Telegram alert), one purely for the
+# rate-limiter's request counters. Create both with:
+#   wrangler kv namespace create LEADS_KV
+#   wrangler kv namespace create RATE_LIMIT_KV
+# then paste the returned ids below (or set them in the Cloudflare
+# dashboard under Workers & Pages → this project → Settings → Bindings).
+[[kv_namespaces]]
+binding = "LEADS_KV"
+id = "REPLACE_WITH_LEADS_KV_ID"
+
+[[kv_namespaces]]
+binding = "RATE_LIMIT_KV"
+id = "REPLACE_WITH_RATE_LIMIT_KV_ID"
+
+# TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID are secrets, not vars — set them
+# with `wrangler secret put TELEGRAM_BOT_TOKEN` (and _CHAT_ID), or in the
+# Cloudflare dashboard under the same Settings → Bindings screen. Never
+# commit them here.
