@@ -7,7 +7,7 @@
  * PUBLIC_IMAGEKIT_URL_ENDPOINT is a build-time public env var — see
  * .env.example — safe to expose, it's just ImageKit's public CDN host.
  */
-const ENDPOINT = import.meta.env.PUBLIC_IMAGEKIT_URL_ENDPOINT || "https://ik.imagekit.io/akrealtors";
+const ENDPOINT = import.meta.env.PUBLIC_IMAGEKIT_URL_ENDPOINT || "https://ik.imagekit.io/akarohan";
 
 export interface ImageKitOptions {
   width?: number;
